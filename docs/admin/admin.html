@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>博客管理后台 | Eric's Blog</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 登录页 -->
+  <div id="loginPage" class="login-page">
+    <div class="login-card">
+      <div class="login-logo">✦</div>
+      <h2>博客管理后台</h2>
+      <p class="login-subtitle">请输入管理密码以继续</p>
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" placeholder="输入管理密码" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">登录</button>
+      </form>
+      <p class="login-hint">默认密码: admin123</p>
+    </div>
+  </div>
+
+  <!-- 主界面（登录后显示） -->
+  <div id="dashboard" class="dashboard" style="display:none;">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">✦</span>
+        <span class="sidebar-title">Blog Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="articles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <span>文章管理</span>
+        </a>
+        <a href="#" class="nav-item" data-page="editor">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span>新建文章</span>
+        </a>
+        <a href="#" class="nav-item" data-page="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span>网站设置</span>
+        </a>
+        <a href="../index.html" class="nav-item nav-external" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>查看网站</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" id="logoutBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          退出登录
+        </button>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部栏 -->
+      <header class="topbar">
+        <h1 id="pageTitle">文章管理</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" id="newArticleBtn">+ 新建文章</button>
+          <button class="btn btn-secondary" id="exportBtn">导出数据</button>
+          <label class="btn btn-secondary file-upload">
+            导入数据
+            <input type="file" id="importFile" accept=".json" style="display:none;">
+          </label>
+        </div>
+      </header>
+
+      <!-- 文章列表页 -->
+      <section id="page-articles" class="page active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon">📄</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotal">0</span>
+              <span class="stat-label">总文章</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📂</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCategories">0</span>
+              <span class="stat-label">分类数</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statReadTime">0</span>
+              <span class="stat-label">总阅读分钟</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏷️</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTags">0</span>
+              <span class="stat-label">标签数</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-controls">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="adminSearch" placeholder="搜索文章...">
+          </div>
+          <select id="adminCategoryFilter" class="filter-select">
+            <option value="all">全部分类</option>
+          </select>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>标题</th>
+                <th>分类</th>
+                <th>日期</th>
+                <th>阅读时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="articlesTableBody">
+              <tr><td colspan="5" class="loading-cell">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 编辑器页 -->
+      <section id="page-editor" class="page">
+        <form id="articleForm" class="editor-form">
+          <input type="hidden" id="editId" value="">
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="articleTitle">标题 *</label>
+              <input type="text" id="articleTitle" required placeholder="输入文章标题">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="articleSlug">URL 别名 *</label>
+              <input type="text" id="articleSlug" required placeholder="my-article-slug">
+              <small class="form-hint">自动生成或手动输入，用于文章链接</small>
+            </div>
+            <div class="form-group">
+              <label for="articleCategory">分类 *</label>
+              <input type="text" id="articleCategory" required placeholder="技术" list="categoryList">
+              <datalist id="categoryList"></datalist>
+            </div>
+            <div class="form-group">
+              <label for="articleDate">发布日期</label>
+              <input type="date" id="articleDate">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="articleTags">标签（逗号分隔）</label>
+              <input type="text" id="articleTags" placeholder="编程, 入门, 教程">
+            </div>
+            <div class="form-group">
+              <label for="articleReadTime">预计阅读（分钟）</label>
+              <input type="number" id="articleReadTime" min="1" max="60" value="5">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="articleCover">封面图片 URL</label>
+              <input type="url" id="articleCover" placeholder="https://picsum.photos/seed/myblog/800/400">
+              <small class="form-hint">留空将使用随机图片</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="articleExcerpt">摘要 *</label>
+              <textarea id="articleExcerpt" rows="3" required placeholder="一句话概括文章主要内容..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="articleContent">正文内容 *</label>
+              <div class="editor-toolbar">
+                <button type="button" class="toolbar-btn" data-action="h2" title="二级标题"># H2</button>
+                <button type="button" class="toolbar-btn" data-action="h3" title="三级标题">## H3</button>
+                <button type="button" class="toolbar-btn" data-action="bold" title="加粗"><b>B</b></button>
+                <button type="button" class="toolbar-btn" data-action="italic" title="斜体"><i>I</i></button>
+                <button type="button" class="toolbar-btn" data-action="ul" title="无序列表">• 列表</button>
+                <button type="button" class="toolbar-btn" data-action="ol" title="有序列表">1. 列表</button>
+                <button type="button" class="toolbar-btn" data-action="code" title="行内代码">&lt;/&gt;</button>
+                <button type="button" class="toolbar-btn" data-action="pre" title="代码块">{ }</button>
+                <button type="button" class="toolbar-btn" data-action="link" title="插入链接">🔗</button>
+                <button type="button" class="toolbar-btn" data-action="quote" title="引用">❝</button>
+              </div>
+              <textarea id="articleContent" rows="16" required placeholder="使用 Markdown 语法编写文章内容..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 保存文章</button>
+            <button type="button" class="btn btn-secondary" id="cancelEditBtn">取消</button>
+            <button type="button" class="btn btn-outline" id="previewBtn">👁 预览</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 设置页 -->
+      <section id="page-settings" class="page">
+        <div class="settings-grid">
+          <div class="settings-card">
+            <h3>🎨 外观设置</h3>
+            <div class="form-group">
+              <label for="settingAccentColor">主色调</label>
+              <input type="color" id="settingAccentColor" value="#6366f1">
+            </div>
+            <div class="form-group">
+              <label for="settingThemeMode">默认主题</label>
+              <select id="settingThemeMode">
+                <option value="auto">跟随系统</option>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="settingCardsPerPage">每页显示卡片数</label>
+              <input type="number" id="settingCardsPerPage" min="6" max="30" value="12">
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>📝 站点信息</h3>
+            <div class="form-group">
+              <label for="settingSiteTitle">站点标题</label>
+              <input type="text" id="settingSiteTitle" value="Eric's Blog">
+            </div>
+            <div class="form-group">
+              <label for="settingSiteDesc">站点描述</label>
+              <textarea id="settingSiteDesc" rows="3">探索 · 学习 · 分享</textarea>
+            </div>
+            <div class="form-group">
+              <label for="settingAuthor">作者名</label>
+              <input type="text" id="settingAuthor" value="Eric">
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>🔗 社交链接</h3>
+            <div class="form-group">
+              <label for="settingGithub">GitHub</label>
+              <input type="url" id="settingGithub" value="https://github.com/Eric-ju-123">
+            </div>
+            <div class="form-group">
+              <label for="settingEmail">邮箱</label>
+              <input type="email" id="settingEmail" placeholder="your@email.com">
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3>🔐 安全设置</h3>
+            <div class="form-group">
+              <label for="settingNewPassword">修改密码</label>
+              <input type="password" id="settingNewPassword" placeholder="留空则不修改">
+            </div>
+            <div class="form-group">
+              <label for="settingConfirmPassword">确认新密码</label>
+              <input type="password" id="settingConfirmPassword" placeholder="再次输入新密码">
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button class="btn btn-primary" id="saveSettingsBtn">💾 保存设置</button>
+          <button class="btn btn-danger" id="resetSettingsBtn">重置默认设置</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/admin.js"></script>
+</body>
+</html>
