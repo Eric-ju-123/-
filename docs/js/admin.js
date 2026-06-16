@@ -11,24 +11,33 @@
     CATEGORIES: ['技术', '生活', '旅行', '阅读', '商业']
   };
 
+  // ===== Toast Notifications =====
+  function toast(msg, type = 'success') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+  }
+
   // ===== Auth Manager =====
   const Auth = {
-    init() {
-      const stored = localStorage.getItem(CONFIG.PASSWORD_KEY);
+    init: function() {
+      var stored = localStorage.getItem(CONFIG.PASSWORD_KEY);
       if (!stored) localStorage.setItem(CONFIG.PASSWORD_KEY, CONFIG.DEFAULT_PASS);
       this.checkSession();
     },
-
-    checkSession() {
+    checkSession: function() {
       if (sessionStorage.getItem('admin-logged')) {
         this.showDashboard();
       } else {
         this.showLogin();
       }
     },
-
-    login(password) {
-      const stored = localStorage.getItem(CONFIG.PASSWORD_KEY);
+    login: function(password) {
+      var stored = localStorage.getItem(CONFIG.PASSWORD_KEY);
       if (password === stored) {
         sessionStorage.setItem('admin-logged', '1');
         this.showDashboard();
@@ -36,18 +45,15 @@
       }
       return false;
     },
-
-    logout() {
+    logout: function() {
       sessionStorage.removeItem('admin-logged');
       window.location.reload();
     },
-
-    showLogin() {
+    showLogin: function() {
       document.getElementById('loginPage').style.display = 'block';
       document.getElementById('dashboard').style.display = 'none';
     },
-
-    showDashboard() {
+    showDashboard: function() {
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('dashboard').style.display = 'flex';
     }
@@ -60,8 +66,24 @@
 
     async load() {
       try {
-        const res = await fetch(CONFIG.DATA_URL);
-        this.articles = await res.json();
+        // Try fetching from remote URL
+        try {
+          const res = await fetch(CONFIG.DATA_URL);
+          if (res.ok) {
+            this.articles = await res.json();
+          } else {
+            throw new Error('Fetch failed');
+          }
+        } catch(e) {
+          // Fallback: try localStorage backup
+          const backup = localStorage.getItem('blog-articles-backup');
+          if (backup) {
+            this.articles = JSON.parse(backup);
+            console.log('Loaded from localStorage backup');
+          } else {
+            this.articles = [];
+          }
+        }
         this.settings = JSON.parse(localStorage.getItem(CONFIG.SETTINGS_KEY)) || this.getDefaultSettings();
       } catch (e) {
         console.error('Failed to load data:', e);
@@ -70,27 +92,7 @@
       }
     },
 
-    async save() {
-      try {
-        const res = await fetch(CONFIG.DATA_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.articles, null, 2)
-        });
-        if (res.ok) {
-          toast('文章数据已保存', 'success');
-        } else {
-          toast('保存失败：无法写入远程文件', 'error');
-        }
-      } catch (e) {
-        toast('保存失败：' + e.message, 'error');
-        // Fallback: save to localStorage
-        localStorage.setItem('blog-articles-backup', JSON.stringify(this.articles));
-        toast('已保存到浏览器本地存储', 'warning');
-      }
-    },
-
-    getDefaultSettings() {
+    getDefaultSettings: function() {
       return {
         accentColor: '#6366f1',
         themeMode: 'auto',
@@ -101,47 +103,53 @@
         github: 'https://github.com/Eric-ju-123',
         email: ''
       };
+    },
+
+    async save() {
+      try {
+        const res = await fetch(CONFIG.DATA_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.articles, null, 2)
+        });
+        if (res.ok) {
+          toast('文章数据已保存到服务器', 'success');
+        } else {
+          throw new Error('Save failed');
+        }
+      } catch (e) {
+        console.warn('Server save failed, saving to localStorage:', e.message);
+        // Fallback: save to localStorage
+        localStorage.setItem('blog-articles-backup', JSON.stringify(this.articles));
+        toast('已保存到浏览器本地存储（GitHub Pages 不支持直接写入文件）', 'warning');
+      }
     }
   };
 
-  // ===== Toast Notifications =====
-  function toast(msg, type = 'success') {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
-
-    const t = document.createElement('div');
-    t.className = 	oast ;
-    t.textContent = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3000);
-  }
-
   // ===== Page Router =====
   const Router = {
-    init() {
-      document.querySelectorAll('.nav-item[data-page]').forEach(link => {
-        link.addEventListener('click', (e) => {
+    init: function() {
+      document.querySelectorAll('.nav-item[data-page]').forEach(function(link) {
+        link.addEventListener('click', function(e) {
           e.preventDefault();
-          const page = link.dataset.page;
-          this.navigateTo(page);
+          var page = link.dataset.page;
+          Router.navigateTo(page);
         });
       });
     },
 
-    navigateTo(page) {
-      // Update nav
-      document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
-      document.querySelector(.nav-item[data-page=""])?.classList.add('active');
+    navigateTo: function(page) {
+      document.querySelectorAll('.nav-item[data-page]').forEach(function(n) { n.classList.remove('active'); });
+      var activeNav = document.querySelector('.nav-item[data-page="' + page + '"]');
+      if (activeNav) activeNav.classList.add('active');
 
-      // Update page
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(page-)?.classList.add('active');
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      var targetPage = document.getElementById('page-' + page);
+      if (targetPage) targetPage.classList.add('active');
 
-      // Update title
-      const titles = { articles: '文章管理', editor: '新建文章', settings: '网站设置' };
+      var titles = { articles: '文章管理', editor: '新建文章', settings: '网站设置' };
       document.getElementById('pageTitle').textContent = titles[page] || '管理后台';
 
-      // Refresh data
       if (page === 'articles') ArticlesList.refresh();
       if (page === 'settings') SettingsPage.load();
     }
@@ -152,96 +160,109 @@
     search: '',
     category: 'all',
 
-    init() {
-      document.getElementById('adminSearch').addEventListener('input', (e) => {
-        this.search = e.target.value;
-        this.refresh();
-      });
+    init: function() {
+      var searchInput = document.getElementById('adminSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (function(e) {
+          this.search = e.target.value;
+          this.refresh();
+        }).bind(this));
+      }
 
-      document.getElementById('adminCategoryFilter').addEventListener('change', (e) => {
-        this.category = e.target.value;
-        this.refresh();
-      });
+      var catFilter = document.getElementById('adminCategoryFilter');
+      if (catFilter) {
+        catFilter.addEventListener('change', (function(e) {
+          this.category = e.target.value;
+          this.refresh();
+        }).bind(this));
+      }
 
-      document.getElementById('newArticleBtn').addEventListener('click', () => Editor.openNew());
-      document.getElementById('exportBtn').addEventListener('click', () => DataIO.exportJSON());
-      document.getElementById('importFile').addEventListener('change', (e) => DataIO.importJSON(e));
+      var newBtn = document.getElementById('newArticleBtn');
+      if (newBtn) newBtn.addEventListener('click', function() { Editor.openNew(); });
+
+      var exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) exportBtn.addEventListener('click', function() { DataIO.exportJSON(); });
+
+      var importFile = document.getElementById('importFile');
+      if (importFile) importFile.addEventListener('change', function(e) { DataIO.importJSON(e); });
 
       this.refresh();
     },
 
-    refresh() {
-      let filtered = Store.articles.filter(a => {
-        const matchSearch = !this.search ||
-          a.title.toLowerCase().includes(this.search.toLowerCase()) ||
-          a.tags.some(t => t.toLowerCase().includes(this.search.toLowerCase()));
-        const matchCat = this.category === 'all' || a.category === this.category;
+    refresh: function() {
+      var self = this;
+      var filtered = Store.articles.filter(function(a) {
+        var matchSearch = !self.search ||
+          a.title.toLowerCase().indexOf(self.search.toLowerCase()) !== -1 ||
+          a.tags.some(function(t) { return t.toLowerCase().indexOf(self.search.toLowerCase()) !== -1; });
+        var matchCat = self.category === 'all' || a.category === self.category;
         return matchSearch && matchCat;
       });
 
-      // Sort by date descending
-      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+      filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
       this.renderTable(filtered);
       this.updateStats();
     },
 
-    renderTable(articles) {
-      const tbody = document.getElementById('articlesTableBody');
+    renderTable: function(articles) {
+      var tbody = document.getElementById('articlesTableBody');
+      if (!tbody) return;
+
       if (articles.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">暂无文章</td></tr>';
         return;
       }
 
-      tbody.innerHTML = articles.map(a => 
-        <tr data-id="">
-          <td class="article-title-cell"></td>
-          <td><span class="category-badge"></span></td>
-          <td></td>
-          <td> 分钟</td>
-          <td>
-            <div class="action-btns">
-              <button class="action-btn" onclick="Editor.open()">编辑</button>
-              <button class="action-btn delete" onclick="ArticlesList.delete()">删除</button>
-            </div>
-          </td>
-        </tr>
-      ).join('');
+      var html = articles.map(function(a) {
+        var tagsStr = a.tags.join(', ');
+        return '<tr data-id="' + a.id + '">' +
+          '<td class="article-title-cell">' + ArticlesList.escapeHtml(a.title) + '</td>' +
+          '<td><span class="category-badge">' + ArticlesList.escapeHtml(a.category) + '</span></td>' +
+          '<td>' + a.date + '</td>' +
+          '<td>' + (a.readTime || 0) + ' 分钟</td>' +
+          '<td><div class="action-btns">' +
+          '<button class="action-btn" onclick="Editor.open(' + a.id + ')">编辑</button>' +
+          '<button class="action-btn delete" onclick="ArticlesList.delete(' + a.id + ')">删除</button>' +
+          '</div></td></tr>';
+      }).join('');
+      tbody.innerHTML = html;
     },
 
-    updateStats() {
-      const cats = new Set(Store.articles.map(a => a.category));
-      const tags = new Set();
-      Store.articles.forEach(a => a.tags.forEach(t => tags.add(t)));
+    updateStats: function() {
+      var cats = {};
+      var tags = {};
+      Store.articles.forEach(function(a) {
+        cats[a.category] = true;
+        a.tags.forEach(function(t) { tags[t] = true; });
+      });
 
       document.getElementById('statTotal').textContent = Store.articles.length;
-      document.getElementById('statCategories').textContent = cats.size;
-      document.getElementById('statReadTime').textContent = Store.articles.reduce((s, a) => s + (a.readTime || 0), 0);
-      document.getElementById('statTags').textContent = tags.size;
+      document.getElementById('statCategories').textContent = Object.keys(cats).length;
+      document.getElementById('statReadTime').textContent = Store.articles.reduce(function(s, a) { return s + (a.readTime || 0); }, 0);
+      document.getElementById('statTags').textContent = Object.keys(tags).length;
     },
 
-    delete(id) {
+    delete: function(id) {
       if (!confirm('确定要删除这篇文章吗？此操作不可恢复。')) return;
-      Store.articles = Store.articles.filter(a => a.id !== id);
-      Store.save().then(() => this.refresh());
+      Store.articles = Store.articles.filter(function(a) { return a.id !== id; });
+      Store.save().then(function() { ArticlesList.refresh(); });
     },
 
-    escapeHtml(str) {
-      const div = document.createElement('div');
+    escapeHtml: function(str) {
+      var div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
     }
   };
 
   // ===== Article Editor =====
-  const Editor = {
+  var Editor = {
     isEdit: false,
 
-    open(id = null) {
+    open: function(id) {
       Router.navigateTo('editor');
       this.isEdit = !!id;
 
-      // Clear form if new
       if (!id) {
         document.getElementById('editId').value = '';
         document.getElementById('articleTitle').value = '';
@@ -256,8 +277,7 @@
         return;
       }
 
-      // Fill form with article data
-      const article = Store.articles.find(a => a.id === id);
+      var article = Store.articles.find(function(a) { return a.id === id; });
       if (!article) return;
 
       document.getElementById('editId').value = id;
@@ -272,98 +292,99 @@
       document.getElementById('articleContent').value = article.content;
     },
 
-    openNew() {
+    openNew: function() {
       this.open(null);
     },
 
-    save(e) {
+    save: function(e) {
       e.preventDefault();
 
-      const data = {
-        id: this.isEdit ? parseInt(document.getElementById('editId').value) : (Store.articles.length ? Math.max(...Store.articles.map(a => a.id)) + 1 : 1),
+      var data = {
+        id: this.isEdit ? parseInt(document.getElementById('editId').value) : (Store.articles.length ? Math.max.apply(null, Store.articles.map(function(a) { return a.id; })) + 1 : 1),
         title: document.getElementById('articleTitle').value.trim(),
         slug: document.getElementById('articleSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'),
         category: document.getElementById('articleCategory').value.trim(),
         date: document.getElementById('articleDate').value || new Date().toISOString().split('T')[0],
-        tags: document.getElementById('articleTags').value.split(/[,，]/).map(t => t.trim()).filter(Boolean),
+        tags: document.getElementById('articleTags').value.split(/[,，]/).map(function(t) { return t.trim(); }).filter(Boolean),
         readTime: parseInt(document.getElementById('articleReadTime').value) || 5,
-        cover: document.getElementById('articleCover').value.trim() || https://picsum.photos/seed//800/400,
+        cover: document.getElementById('articleCover').value.trim() || ('https://picsum.photos/seed/' + Date.now() + '/800/400'),
         excerpt: document.getElementById('articleExcerpt').value.trim(),
         content: document.getElementById('articleContent').value.trim()
       };
 
       if (this.isEdit) {
-        const idx = Store.articles.findIndex(a => a.id === data.id);
+        var idx = Store.articles.findIndex(function(a) { return a.id === data.id; });
         if (idx !== -1) Store.articles[idx] = data;
       } else {
         Store.articles.push(data);
       }
 
-      Store.save().then(() => {
+      Store.save().then(function() {
         Router.navigateTo('articles');
       });
     },
 
-    preview() {
-      const title = document.getElementById('articleTitle').value;
-      const content = document.getElementById('articleContent').value;
-      const previewWin = window.open('', '_blank');
-      const html = <!DOCTYPE html><html><head><meta charset="UTF-8"><title>预览</title>
-        <style>body{font-family:'Noto Sans SC',sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.8;}
-        h1{font-size:2rem;margin-bottom:20px;}</style></head>
-        <body><h1></h1></body></html>;
+    preview: function() {
+      var title = document.getElementById('articleTitle').value;
+      var content = document.getElementById('articleContent').value;
+      var previewWin = window.open('', '_blank');
+      var rendered = content
+        .replace(/## (.+)/g, '<h2></h2>')
+        .replace(/### (.+)/g, '<h3></h3>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong></strong>')
+        .replace(/\n/g, '<br>');
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>预览 - ' + title + '</title>' +
+        '<style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.8;}' +
+        'h1{font-size:2rem;margin-bottom:20px;}h2{margin-top:30px;}h3{margin-top:24px;}' +
+        'pre{background:#f4f4f4;padding:16px;border-radius:8px;overflow-x:auto;}code{font-family:monospace;}' +
+        'blockquote{border-left:3px solid #6366f1;padding-left:16px;color:#666;}</style></head>' +
+        '<body><h1>' + title + '</h1>' + rendered + '</body></html>';
       previewWin.document.write(html);
       previewWin.document.close();
     }
   };
 
   // ===== Data Import/Export =====
-  const DataIO = {
-    exportJSON() {
-      const data = JSON.stringify(Store.articles, null, 2);
-      const blob = new Blob([data], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+  var DataIO = {
+    exportJSON: function() {
+      var data = JSON.stringify(Store.articles, null, 2);
+      var blob = new Blob([data], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
       a.href = url;
-      a.download = log-articles-.json;
+      a.download = 'blog-articles-' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      toast('数据已导出', 'success');
+      toast('数据已导出到下载文件夹', 'success');
     },
 
-    importJSON(event) {
-      const file = event.target.files[0];
+    importJSON: function(event) {
+      var file = event.target.files[0];
       if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
+      var reader = new FileReader();
+      reader.onload = function(e) {
         try {
-          const imported = JSON.parse(e.target.result);
+          var imported = JSON.parse(e.target.result);
           if (!Array.isArray(imported)) throw new Error('格式错误');
-
-          // Merge or replace
-          const maxId = imported.length ? Math.max(...imported.map(i => i.id)) : 0;
           Store.articles = imported;
-
-          // Re-save with new IDs
-          Store.save().then(() => {
-            toast(成功导入  篇文章, 'success');
+          Store.save().then(function() {
+            toast('成功导入 ' + imported.length + ' 篇文章', 'success');
             Router.navigateTo('articles');
           });
         } catch (err) {
-          toast('导入失败：文件格式错误', 'error');
+          toast('导入失败：文件格式错误 — ' + err.message, 'error');
         }
       };
       reader.readAsText(file);
-      event.target.value = ''; // Reset input
+      event.target.value = '';
     }
   };
 
   // ===== Settings Page =====
-  const SettingsPage = {
-    load() {
+  var SettingsPage = {
+    load: function() {
       if (!Store.settings) return;
-      const s = Store.settings;
+      var s = Store.settings;
       document.getElementById('settingAccentColor').value = s.accentColor || '#6366f1';
       document.getElementById('settingThemeMode').value = s.themeMode || 'auto';
       document.getElementById('settingCardsPerPage').value = s.cardsPerPage || 12;
@@ -374,9 +395,9 @@
       document.getElementById('settingEmail').value = s.email || '';
     },
 
-    save() {
-      const newPass = document.getElementById('settingNewPassword').value;
-      const confirmPass = document.getElementById('settingConfirmPassword').value;
+    save: function() {
+      var newPass = document.getElementById('settingNewPassword').value;
+      var confirmPass = document.getElementById('settingConfirmPassword').value;
 
       if (newPass && newPass !== confirmPass) {
         toast('两次密码输入不一致', 'error');
@@ -385,7 +406,9 @@
 
       if (newPass) {
         localStorage.setItem(CONFIG.PASSWORD_KEY, newPass);
-        toast('密码已修改', 'success');
+        toast('密码已修改，请重新登录', 'success');
+        setTimeout(function() { Auth.logout(); }, 1500);
+        return;
       }
 
       Store.settings = {
@@ -403,7 +426,7 @@
       toast('设置已保存', 'success');
     },
 
-    reset() {
+    reset: function() {
       if (!confirm('确定要重置所有设置吗？')) return;
       Store.settings = Store.getDefaultSettings();
       localStorage.removeItem(CONFIG.SETTINGS_KEY);
@@ -413,34 +436,33 @@
   };
 
   // ===== Toolbar Actions =====
-  const Toolbar = {
-    init() {
-      document.querySelectorAll('.toolbar-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const action = btn.dataset.action;
-          const textarea = document.getElementById('articleContent');
-          const start = textarea.selectionStart;
-          const end = textarea.selectionEnd;
-          const selected = textarea.value.substring(start, end);
-
-          let insert = '';
-          let cursorOffset = 0;
+  var Toolbar = {
+    init: function() {
+      document.querySelectorAll('.toolbar-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var action = btn.dataset.action;
+          var textarea = document.getElementById('articleContent');
+          var start = textarea.selectionStart;
+          var end = textarea.selectionEnd;
+          var selected = textarea.value.substring(start, end);
+          var insert = '';
+          var cursorOffset = 0;
 
           switch (action) {
-            case 'h2': insert = \n## \n; break;
-            case 'h3': insert = \n### \n; break;
-            case 'bold': insert = ****; cursorOffset = selected ? 0 : -2; break;
-            case 'italic': insert = **; cursorOffset = selected ? 0 : -2; break;
-            case 'ul': insert = \n- \n; break;
-            case 'ol': insert = \n1. \n; break;
-            case 'code': insert = \${selected || '代码'}\`; cursorOffset = selected ? 0 : -2; break;
-            case 'pre': insert = \n\\\\n\n\\\\n; break;
-            case 'link': insert = [](url); cursorOffset = -1; break;
-            case 'quote': insert = \n> \n; break;
+            case 'h2': insert = '\n## ' + (selected || '标题') + '\n'; break;
+            case 'h3': insert = '\n### ' + (selected || '标题') + '\n'; break;
+            case 'bold': insert = '**' + (selected || '粗体') + '**'; cursorOffset = selected ? 0 : -2; break;
+            case 'italic': insert = '*' + (selected || '斜体') + '*'; cursorOffset = selected ? 0 : -2; break;
+            case 'ul': insert = '\n- ' + (selected || '列表项') + '\n'; break;
+            case 'ol': insert = '\n1. ' + (selected || '列表项') + '\n'; break;
+            case 'code': insert = '' + (selected || '代码') + ''; cursorOffset = selected ? 0 : -2; break;
+            case 'pre': insert = '\n`\n' + (selected || '代码块') + '\n`\n'; break;
+            case 'link': insert = '[' + (selected || '链接文字') + '](url)'; cursorOffset = -1; break;
+            case 'quote': insert = '\n> ' + (selected || '引用内容') + '\n'; break;
           }
 
           textarea.value = textarea.value.substring(0, start) + insert + textarea.value.substring(end);
-          const newCursor = start + insert.length + cursorOffset;
+          var newCursor = start + insert.length + cursorOffset;
           textarea.setSelectionRange(newCursor, newCursor);
           textarea.focus();
         });
@@ -448,60 +470,82 @@
     }
   };
 
-  // ===== Initialize =====
-  function init() {
-    Auth.init();
+  // ===== Populate Category Filter =====
+  function populateCategories() {
+    var filterSelect = document.getElementById('adminCategoryFilter');
+    if (!filterSelect) return;
 
-    // Login form
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const pass = document.getElementById('password').value;
-      if (!Auth.login(pass)) {
-        toast('密码错误，请重试', 'error');
-        document.getElementById('password').value = '';
-        document.getElementById('password').focus();
-      }
-    });
+    var cats = {};
+    CONFIG.CATEGORIES.forEach(function(c) { cats[c] = true; });
+    Store.articles.forEach(function(a) { cats[a.category] = true; });
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => Auth.logout());
-
-    // Router
-    Router.init();
-
-    // Editor form
-    document.getElementById('articleForm').addEventListener('submit', (e) => Editor.save(e));
-    document.getElementById('cancelEditBtn').addEventListener('click', () => Router.navigateTo('articles'));
-    document.getElementById('previewBtn').addEventListener('click', () => Editor.preview());
-
-    // Settings
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => SettingsPage.save());
-    document.getElementById('resetSettingsBtn').addEventListener('click', () => SettingsPage.reset());
-
-    // Populate category filter
-    const filterSelect = document.getElementById('adminCategoryFilter');
-    const cats = new Set(Store.CATEGORIES);
-    Store.articles.forEach(a => cats.add(a.category));
-    cats.forEach(c => {
-      const opt = document.createElement('option');
+    filterSelect.innerHTML = '<option value="all">全部分类</option>';
+    Object.keys(cats).sort().forEach(function(c) {
+      var opt = document.createElement('option');
       opt.value = c;
       opt.textContent = c;
       filterSelect.appendChild(opt);
     });
 
-    // Populate datalist
-    const datalist = document.getElementById('categoryList');
-    cats.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      datalist.appendChild(opt);
-    });
+    var datalist = document.getElementById('categoryList');
+    if (datalist) {
+      datalist.innerHTML = '';
+      Object.keys(cats).sort().forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c;
+        datalist.appendChild(opt);
+      });
+    }
+  }
+
+  // ===== Initialize =====
+  function init() {
+    Auth.init();
+
+    // Login form
+    var loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var pass = document.getElementById('password').value;
+        if (!Auth.login(pass)) {
+          toast('密码错误，请重试', 'error');
+          document.getElementById('password').value = '';
+          document.getElementById('password').focus();
+        }
+      });
+    }
+
+    // Logout
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', function() { Auth.logout(); });
+
+    // Router
+    Router.init();
+
+    // Editor form
+    var articleForm = document.getElementById('articleForm');
+    if (articleForm) articleForm.addEventListener('submit', function(e) { Editor.save(e); });
+
+    var cancelBtn = document.getElementById('cancelEditBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', function() { Router.navigateTo('articles'); });
+
+    var previewBtn = document.getElementById('previewBtn');
+    if (previewBtn) previewBtn.addEventListener('click', function() { Editor.preview(); });
+
+    // Settings
+    var saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    if (saveSettingsBtn) saveSettingsBtn.addEventListener('click', function() { SettingsPage.save(); });
+
+    var resetSettingsBtn = document.getElementById('resetSettingsBtn');
+    if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', function() { SettingsPage.reset(); });
 
     // Toolbar
     Toolbar.init();
 
     // Load data
-    Store.load().then(() => {
+    Store.load().then(function() {
+      populateCategories();
       ArticlesList.refresh();
       ArticlesList.init();
     });
@@ -513,3 +557,4 @@
     init();
   }
 })();
+
