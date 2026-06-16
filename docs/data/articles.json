@@ -1,0 +1,74 @@
+﻿[
+  {
+    "id": 1,
+    "title": "欢迎来到我的博客",
+    "slug": "welcome-to-my-blog",
+    "date": "2026-06-16",
+    "category": "生活",
+    "tags": ["随笔", "介绍"],
+    "excerpt": "这是我的个人博客，记录技术学习、生活感悟和探索发现。",
+    "cover": "https://picsum.photos/seed/welcome/800/400",
+    "readTime": 3,
+    "content": "欢迎！这个博客是我分享想法和知识的空间。\n\n## 关于我\n\n我是一名热爱技术和学习的探索者。这个博客主要涵盖以下几个方向：\n\n- 💻 技术笔记与教程\n- 🌍 旅行与生活记录\n- 📚 阅读与思考\n- 🎯 项目实践\n\n## 为什么建这个博客\n\n写博客是最好的学习方式之一。通过整理思路、输出内容，能够加深对知识的理解。\n\n期待在这里与你相遇！"
+  },
+  {
+    "id": 2,
+    "title": "学习编程的第一天",
+    "slug": "first-day-learning-coding",
+    "date": "2026-06-15",
+    "category": "技术",
+    "tags": ["编程", "入门"],
+    "excerpt": "记录下开始学习编程的心路历程，从零开始的每一步都值得纪念。",
+    "cover": "https://picsum.photos/seed/code/800/400",
+    "readTime": 5,
+    "content": "今天是我正式学习编程的第一天。\n\n## 为什么学编程\n\n编程就像是一种超能力，它能够把想法变成现实。无论是网站、应用还是人工智能，背后都有编程的影子。\n\n## 学习路线\n\n我选择了以下学习路径：\n\n1. **HTML/CSS/JavaScript** - Web 开发基础\n2. **Python** - 数据处理与自动化\n3. **Git** - 版本控制\n\n## 第一天学到的\n\n- 什么是变量和数据类型\n- 如何写出第一行代码\n- 调试的基本方法\n\n虽然还有很多不懂的地方，但每一步都在进步。"
+  },
+  {
+    "id": 3,
+    "title": "拉各斯的街头美食",
+    "slug": "lagos-street-food",
+    "date": "2026-06-14",
+    "category": "旅行",
+    "tags": ["美食", "拉各斯", "尼日利亚"],
+    "excerpt": "探索拉各斯街头巷尾的地道美食，感受西非美食文化的独特魅力。",
+    "cover": "https://picsum.photos/seed/food/800/400",
+    "readTime": 4,
+    "content": "拉各斯是一座充满活力的城市，而它的美食文化更是让人流连忘返。\n\n## 必尝美食\n\n### Jollof Rice\n\n西非最具代表性的米饭料理，每个家庭都有自己独特的配方。\n\n### Suya\n\n烤牛肉串，撒上花生粉和香料，是街头最受欢迎的零食。\n\n### Pounded Yam & Egusi Soup\n\n传统的尼日利亚料理，口感绵密的土豆泥配上浓郁的南瓜籽汤。\n\n## 美食建议\n\n- 去 Balogun 市场体验最地道的街头美食\n- 尝试各种本地果汁\n- 不要害怕辣味，那是灵魂所在"
+  },
+  {
+    "id": 4,
+    "title": "用 Vite 搭建现代前端项目",
+    "slug": "vite-modern-frontend-setup",
+    "date": "2026-06-13",
+    "category": "技术",
+    "tags": ["Vite", "React", "前端"],
+    "excerpt": "介绍如何使用 Vite + React + TypeScript 快速搭建现代化前端项目。",
+    "cover": "https://picsum.photos/seed/vite/800/400",
+    "readTime": 6,
+    "content": "Vite 是目前最快的前端构建工具之一，用它来搭建项目非常高效。\n\n## 为什么选择 Vite\n\n- ⚡ 极速的冷启动和热更新\n- 🔧 开箱即用的 TypeScript 支持\n- 📦 内置代码分割\n- 🔌 丰富的插件生态\n\n## 快速上手\n\n`ash\nnpm create vite@latest my-project -- --template react-ts\ncd my-project\nnpm install\nnpm run dev\n`\n\n就这么简单，一个现代化的前端项目就搭建好了。\n\n## 项目结构\n\n`\nsrc/\n├── components/    # 可复用组件\n├── pages/         # 页面组件\n├── styles/        # 全局样式\n└── App.tsx        # 主入口\n`\n\n搭配 GitHub Pages 部署，你的个人网站就能快速上线了。"
+  },
+  {
+    "id": 5,
+    "title": "读书笔记：原子习惯",
+    "slug": "atomic-habits-reading-notes",
+    "date": "2026-06-12",
+    "category": "阅读",
+    "tags": ["读书", "习惯", "自我提升"],
+    "excerpt": "James Clear 的《原子习惯》教会我们：微小的改变能带来非凡的成就。",
+    "cover": "https://picsum.photos/seed/book/800/400",
+    "readTime": 7,
+    "content": "《原子习惯》是一本关于习惯养成和自我提升的经典之作。\n\n## 核心理念\n\n习惯的力量不在于一次巨大的改变，而在于每天微小的进步。1% 的改进，累积起来就是巨大的变化。\n\n## 四大定律\n\n1. **让它显而易见** - 设计清晰的环境提示\n2. **让它有吸引力** - 将习惯与喜欢的事情结合\n3. **让它简便易行** - 减少执行的阻力\n4. **让它令人愉悦** - 建立正向反馈循环\n\n## 我的实践\n\n- 每天阅读 10 分钟\n- 坚持写日记\n- 每周运动 3 次\n\n改变不是靠意志力，而是靠系统设计。"
+  },
+  {
+    "id": 6,
+    "title": "尼日利亚创业环境观察",
+    "slug": "nigeria-startup-landscape",
+    "date": "2026-06-11",
+    "category": "商业",
+    "tags": ["创业", "非洲", "商业"],
+    "excerpt": "深入了解尼日利亚的创业生态，从拉各斯科技中心到未来机遇。",
+    "cover": "https://picsum.photos/seed/business/800/400",
+    "readTime": 8,
+    "content": "尼日利亚，尤其是拉各斯，正在成为非洲最具活力的创业中心之一。\n\n## 科技生态系统\n\n拉各斯被称为 \"非洲科技之都\"，拥有：\n\n- 🏢 众多科技孵化器和加速器\n- 👥 年轻的互联网用户群体\n- 💰 快速增长的风投资金\n- 📱 移动优先的市场环境\n\n## 热门领域\n\n- **金融科技 (FinTech)** - 移动支付、借贷平台\n- **电商物流** - 解决最后一公里配送\n- **教育科技** - 在线学习平台\n- **医疗健康** - 数字健康解决方案\n\n## 挑战与机遇\n\n基础设施和商业环境仍有改进空间，但这也正是创新的机会所在。"
+  }
+]
