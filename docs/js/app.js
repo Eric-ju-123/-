@@ -1,4 +1,4 @@
-﻿// ===== Blog Application =====
+// ===== Blog Application =====
 (function() {
   'use strict';
   // ===== Theme Management =====
@@ -77,28 +77,28 @@
     createArticleCard(article, index) {
       const card = document.createElement('article');
       card.className = 'article-card';
-      card.style.animationDelay = ${index * 0.08}s;
+      card.style.animationDelay = (index * 0.08) + "s";
       card.onclick = () => {
-        window.location.href = rticle.html?slug=;
+        window.location.href = "article.html?slug=" + article.slug;
       };
-      const tagsHtml = article.tags.map(t =>
-        <span class="card-tag"></span>
-      ).join('');
+      const tagsHtml = article.tags.map(function(t) {
+        return "<span class=\"card-tag\">" + t + "</span>";
+      }).join("");
       card.innerHTML = 
-        <div class="card-cover">
-          <img src="" alt="" loading="lazy"
-               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 400%22><rect fill=%22%236366f1%22 width=%22800%22 height=%22400%22/><text x=%22400%22 y=%22200%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22>📝</text></svg>'">
-          <span class="card-category"></span>
-        </div>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="card-date">📅 </span>
-            <span class="card-readtime">⏱  分钟</span>
-          </div>
-          <h3 class="card-title"></h3>
-          <p class="card-excerpt"></p>
-          <div class="card-tags"></div>
-        </div>
+        "<div class=\"card-cover\">" +
+          "<img src=\"" + article.cover + "\" alt=\"" + article.title + "\" loading=\"lazy\" " +
+          "onerror=\"this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 800 400%22><rect fill=%22%236366f1%22 width=%22800%22 height=%22400%22/><text x=%22400%22 y=%22200%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22>\U0001f4dd</text></svg>'\">" +
+          "<span class=\"card-category\">" + article.category + "</span>" +
+        "</div>" +
+        "<div class=\"card-body\">" +
+          "<div class=\"card-meta\">" +
+            "<span class=\"card-date\">\U0001f4c5 </span>" +
+            "<span class=\"card-readtime\">\u2311 " + article.readTime + " \u5206\u949f</span>" +
+          "</div>" +
+          "<h3 class=\"card-title\">" + article.title + "</h3>" +
+          "<p class=\"card-excerpt\">" + article.excerpt + "</p>" +
+          "<div class=\"card-tags\">" + tagsHtml + "</div>" +
+        "</div>";
       ;
       return card;
     },
@@ -195,13 +195,13 @@
       this.render(article);
     },
     render(article) {
-      document.title = ${article.title} | Eric's Blog;
+      document.title = article.title + " | Eric's Blog";
       const meta = document.querySelector('.article-meta');
       if (meta) {
         meta.innerHTML = 
-          <span>📅 </span>
-          <span>📂 </span>
-          <span>⏱  分钟阅读</span>
+          "<span>\U0001f4c5 </span>" +
+          "<span>\U0001f4c2 </span>" +
+          "<span>\u2311 " + article.readTime + " \u5206\u949f\u9605\u8bfb</span>";
         ;
       }
       const cover = document.querySelector('.article-cover img');
@@ -214,9 +214,9 @@
       }
       const tagsContainer = document.querySelector('.article-tags');
       if (tagsContainer) {
-        tagsContainer.innerHTML = article.tags.map(t =>
-          <span class="card-tag"></span>
-        ).join('');
+        tagsContainer.innerHTML = article.tags.map(function(t) {
+          return "<span class=\"card-tag\">" + t + "</span>";
+        }).join("");
       }
     },
     markdownToHtml(text) {
@@ -226,13 +226,13 @@
         .replace(/^# (.+)$/gm, '<h1></h1>')
         .replace(/\*\*(.+?)\*\*/g, '<strong></strong>')
         .replace(/\*(.+?)\*/g, '<em></em>')
-        .replace(/(.+?)/g, '<code></code>')
+        .replace(/`(.+?)`/g, '<code></code>')
         .replace(/^`([\s\S]*?)`/g, '<pre><code></code></pre>')
         .replace(/^> (.+)$/gm, '<blockquote></blockquote>')
         .replace(/^- (.+)$/gm, '<li></li>')
         .replace(/^\d+\. (.+)$/gm, '<li></li>')
         .replace(/(\s*){2,}/g, '</p><p>')
-        .replace(//g, '<br>');
+        .replace(/\n/g, "<br>");
     }
   };
 // ===== Related Articles Rendering =====
@@ -255,7 +255,7 @@
         card.innerHTML = `
           <h4>${article.title}</h4>
           <div class="related-meta">
-            📅 ${DataManager.formatDate(article.date)} · ⏱ ${article.readTime} 分钟
+            \U0001f4c5 ${DataManager.formatDate(article.date)} · ⏱ ${article.readTime} \u5206\u949f
           </div>
           <p class="related-excerpt">${article.excerpt}</p>
         `;

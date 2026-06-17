@@ -1,4 +1,4 @@
-﻿// ===== Blog Admin Application =====
+// ===== Blog Admin Application =====
 (function() {
   'use strict';
 
@@ -8,7 +8,7 @@
     SETTINGS_KEY: 'blog-settings',
     PASSWORD_KEY: 'blog-admin-pass',
     DEFAULT_PASS: 'admin123',
-    CATEGORIES: ['技术', '生活', '旅行', '阅读', '商业']
+    CATEGORIES: ['??', '??', '??', '??', '??']
   };
 
   // ===== Toast Notifications =====
@@ -98,31 +98,30 @@
         themeMode: 'auto',
         cardsPerPage: 12,
         siteTitle: "Eric's Blog",
-        siteDesc: '探索 · 学习 · 分享',
+        siteDesc: '?? Ã‚Â· ?? Ã‚Â· ??',
         author: 'Eric',
         github: 'https://github.com/Eric-ju-123',
         email: ''
       };
     },
 
-    async save() {
-      try {
-        const res = await fetch(CONFIG.DATA_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.articles, null, 2)
-        });
-        if (res.ok) {
-          toast('文章数据已保存到服务器', 'success');
-        } else {
-          throw new Error('Save failed');
-        }
-      } catch (e) {
-        console.warn('Server save failed, saving to localStorage:', e.message);
-        // Fallback: save to localStorage
-        localStorage.setItem('blog-articles-backup', JSON.stringify(this.articles));
-        toast('已保存到浏览器本地存储（GitHub Pages 不支持直接写入文件）', 'warning');
-      }
+    save() {
+      // Save to localStorage backup
+      localStorage.setItem('blog-articles-backup', JSON.stringify(this.articles));
+
+      // Download articles.json for manual deployment
+      const jsonStr = JSON.stringify(this.articles, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'articles.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast('已下载 articles.json，请替换仓库中的文件并推送', 'success');
     }
   };
 
@@ -147,8 +146,8 @@
       var targetPage = document.getElementById('page-' + page);
       if (targetPage) targetPage.classList.add('active');
 
-      var titles = { articles: '文章管理', editor: '新建文章', settings: '网站设置' };
-      document.getElementById('pageTitle').textContent = titles[page] || '管理后台';
+      var titles = { articles: '????', editor: '????', settings: '????' };
+      document.getElementById('pageTitle').textContent = titles[page] || '????';
 
       if (page === 'articles') ArticlesList.refresh();
       if (page === 'settings') SettingsPage.load();
@@ -209,7 +208,7 @@
       if (!tbody) return;
 
       if (articles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">暂无文章</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">????</td></tr>';
         return;
       }
 
@@ -219,9 +218,9 @@
           '<td class="article-title-cell">' + ArticlesList.escapeHtml(a.title) + '</td>' +
           '<td><span class="category-badge">' + ArticlesList.escapeHtml(a.category) + '</span></td>' +
           '<td>' + a.date + '</td>' +
-          '<td>' + (a.readTime || 0) + ' 分钟</td>' +
+          '<td>' + (a.readTime || 0) + ' ??</td>' +
           '<td><div class="action-btns">' +
-          '<button class="action-btn" onclick="Editor.open(' + a.id + ')">编辑</button>' +
+          '<button class="action-btn" onclick="Editor.open(' + a.id + ')">删除</button>' +
           '<button class="action-btn delete" onclick="ArticlesList.delete(' + a.id + ')">删除</button>' +
           '</div></td></tr>';
       }).join('');
@@ -243,7 +242,7 @@
     },
 
     delete: function(id) {
-      if (!confirm('确定要删除这篇文章吗？此操作不可恢复。')) return;
+      if (!confirm('???????????????????')) return;
       Store.articles = Store.articles.filter(function(a) { return a.id !== id; });
       Store.save().then(function() { ArticlesList.refresh(); });
     },
@@ -305,7 +304,7 @@
         slug: document.getElementById('articleSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'),
         category: document.getElementById('articleCategory').value.trim(),
         date: document.getElementById('articleDate').value || new Date().toISOString().split('T')[0],
-        tags: document.getElementById('articleTags').value.split(/[,，]/).map(function(t) { return t.trim(); }).filter(Boolean),
+        tags: document.getElementById('articleTags').value.split(/[,,]/).map(function(t) { return t.trim(); }).filter(Boolean),
         readTime: parseInt(document.getElementById('articleReadTime').value) || 5,
         cover: document.getElementById('articleCover').value.trim() || ('https://picsum.photos/seed/' + Date.now() + '/800/400'),
         excerpt: document.getElementById('articleExcerpt').value.trim(),
@@ -333,7 +332,7 @@
         .replace(/### (.+)/g, '<h3></h3>')
         .replace(/\*\*(.+?)\*\*/g, '<strong></strong>')
         .replace(/\n/g, '<br>');
-      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>预览 - ' + title + '</title>' +
+      var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>?? - ' + title + '</title>' +
         '<style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.8;}' +
         'h1{font-size:2rem;margin-bottom:20px;}h2{margin-top:30px;}h3{margin-top:24px;}' +
         'pre{background:#f4f4f4;padding:16px;border-radius:8px;overflow-x:auto;}code{font-family:monospace;}' +
@@ -355,7 +354,7 @@
       a.download = 'blog-articles-' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      toast('数据已导出到下载文件夹', 'success');
+      toast('???????????', 'success');
     },
 
     importJSON: function(event) {
@@ -365,14 +364,14 @@
       reader.onload = function(e) {
         try {
           var imported = JSON.parse(e.target.result);
-          if (!Array.isArray(imported)) throw new Error('格式错误');
+          if (!Array.isArray(imported)) throw new Error('????');
           Store.articles = imported;
           Store.save().then(function() {
-            toast('成功导入 ' + imported.length + ' 篇文章', 'success');
+            toast('???? ' + imported.length + ' ???', 'success');
             Router.navigateTo('articles');
           });
         } catch (err) {
-          toast('导入失败：文件格式错误 — ' + err.message, 'error');
+          toast('????:?????? Ã¢â‚¬â€ ' + err.message, 'error');
         }
       };
       reader.readAsText(file);
@@ -400,13 +399,13 @@
       var confirmPass = document.getElementById('settingConfirmPassword').value;
 
       if (newPass && newPass !== confirmPass) {
-        toast('两次密码输入不一致', 'error');
+        toast('?????????', 'error');
         return;
       }
 
       if (newPass) {
         localStorage.setItem(CONFIG.PASSWORD_KEY, newPass);
-        toast('密码已修改，请重新登录', 'success');
+        toast('?????,?????', 'success');
         setTimeout(function() { Auth.logout(); }, 1500);
         return;
       }
@@ -423,15 +422,15 @@
       };
 
       localStorage.setItem(CONFIG.SETTINGS_KEY, JSON.stringify(Store.settings));
-      toast('设置已保存', 'success');
+      toast('?????', 'success');
     },
 
     reset: function() {
-      if (!confirm('确定要重置所有设置吗？')) return;
+      if (!confirm('???????????')) return;
       Store.settings = Store.getDefaultSettings();
       localStorage.removeItem(CONFIG.SETTINGS_KEY);
       this.load();
-      toast('设置已重置', 'warning');
+      toast('?????', 'warning');
     }
   };
 
@@ -449,16 +448,16 @@
           var cursorOffset = 0;
 
           switch (action) {
-            case 'h2': insert = '\n## ' + (selected || '标题') + '\n'; break;
-            case 'h3': insert = '\n### ' + (selected || '标题') + '\n'; break;
-            case 'bold': insert = '**' + (selected || '粗体') + '**'; cursorOffset = selected ? 0 : -2; break;
-            case 'italic': insert = '*' + (selected || '斜体') + '*'; cursorOffset = selected ? 0 : -2; break;
-            case 'ul': insert = '\n- ' + (selected || '列表项') + '\n'; break;
-            case 'ol': insert = '\n1. ' + (selected || '列表项') + '\n'; break;
-            case 'code': insert = '' + (selected || '代码') + ''; cursorOffset = selected ? 0 : -2; break;
-            case 'pre': insert = '\n`\n' + (selected || '代码块') + '\n`\n'; break;
-            case 'link': insert = '[' + (selected || '链接文字') + '](url)'; cursorOffset = -1; break;
-            case 'quote': insert = '\n> ' + (selected || '引用内容') + '\n'; break;
+            case 'h2': insert = '\n## ' + (selected || '??') + '\n'; break;
+            case 'h3': insert = '\n### ' + (selected || '??') + '\n'; break;
+            case 'bold': insert = '**' + (selected || '??') + '**'; cursorOffset = selected ? 0 : -2; break;
+            case 'italic': insert = '*' + (selected || '??') + '*'; cursorOffset = selected ? 0 : -2; break;
+            case 'ul': insert = '\n- ' + (selected || '???') + '\n'; break;
+            case 'ol': insert = '\n1. ' + (selected || '???') + '\n'; break;
+            case 'code': insert = '' + (selected || '??') + ''; cursorOffset = selected ? 0 : -2; break;
+            case 'pre': insert = '\n`\n' + (selected || '???') + '\n`\n'; break;
+            case 'link': insert = '[' + (selected || '????') + '](url)'; cursorOffset = -1; break;
+            case 'quote': insert = '\n> ' + (selected || '????') + '\n'; break;
           }
 
           textarea.value = textarea.value.substring(0, start) + insert + textarea.value.substring(end);
@@ -479,7 +478,7 @@
     CONFIG.CATEGORIES.forEach(function(c) { cats[c] = true; });
     Store.articles.forEach(function(a) { cats[a.category] = true; });
 
-    filterSelect.innerHTML = '<option value="all">全部分类</option>';
+    filterSelect.innerHTML = '<option value="all">????</option>';
     Object.keys(cats).sort().forEach(function(c) {
       var opt = document.createElement('option');
       opt.value = c;
@@ -509,7 +508,7 @@
         e.preventDefault();
         var pass = document.getElementById('password').value;
         if (!Auth.login(pass)) {
-          toast('密码错误，请重试', 'error');
+          toast('????,???', 'error');
           document.getElementById('password').value = '';
           document.getElementById('password').focus();
         }
