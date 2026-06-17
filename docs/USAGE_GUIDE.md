@@ -1,60 +1,37 @@
 # 博客使用指南
 
-## 问题修复说明
+## 问题修复
 
-之前后台管理的文章保存功能无法正常工作，原因是：
-1. **GitHub Pages 是静态托管**，不支持通过 POST 请求写回 `articles.json` 文件
-2. **app.js 模板字符串损坏**，导致前台页面 JavaScript 报错，文章无法正常渲染
+- **admin.js**: 保存文章时自动下载 `articles.json`
+- **app.js**: 修复所有模板字符串语法错误
+- **update_articles.bat**: 一键更新脚本
 
-## 已修复内容
+## 添加文章流程（三步完成）
 
-### admin.js 修改
-- 保存文章时自动下载更新后的 `articles.json` 文件
-- 同时保存到浏览器 localStorage 作为备份
-- 提示用户替换仓库文件并推送
-
-### app.js 修复
-- 修复了所有损坏的模板字符串（反引号丢失）
-- 修复了 `createArticleCard` 方法中的链接跳转
-- 修复了 `markdownToHtml` 中的正则表达式
-- 修复了 `ArticlePage.render` 中的标题和元数据设置
-
-## 使用流程
-
-### 添加/编辑文章
+### 第一步：在后台创建文章
 1. 打开 `docs/admin/admin.html`
-2. 输入密码登录（默认：`admin123`）
-3. 点击"新建文章"或编辑已有文章
-4. 填写标题、分类、标签、内容等信息
-5. 点击"保存"按钮
+2. 密码登录（默认: `admin123`）
+3. 填写文章信息，点击"保存"
+4. 浏览器自动下载 `articles.json`
 
-### 保存后操作（重要！）
-1. 浏览器会自动下载 `articles.json` 文件
-2. 用下载的文件**替换** `docs/data/articles.json`
-3. 在 Git 终端中执行：
-   ```
-   git add docs/data/articles.json
-   git commit -m "更新博客文章数据"
-   git push
-   ```
-4. GitHub Pages 会自动更新，前台网站即可看到新文章
+### 第二步：运行一键更新脚本
+双击项目根目录的 **`update_articles.bat`**
+- 自动从下载文件夹找到 `articles.json`
+- 复制到 `docs/data/`
+- 自动 git commit + push
 
-### 登录密码
-- 默认密码：`admin123`
-- 可在后台"网站设置"中修改
+### 第三步：等待刷新
+GitHub Pages 通常 1-2 分钟自动更新
 
-## 文件结构
+## 手动更新（如果脚本失败）
 ```
-docs/
-├── index.html          # 首页
-├── article.html        # 文章详情页
-├── admin/
-│   └── admin.html      # 管理后台
-├── js/
-│   ├── app.js          # 前台脚本（已修复）
-│   └── admin.js        # 后台脚本（已修复）
-├── css/
-│   ├── style.css       # 前台样式
-│   └── admin.css       # 后台样式
-└── data/
-    └── articles.json   # 文章数据
+copy %USERPROFILE%\Downloadsrticles.json docs\datagit add docs\datarticles.json
+git commit -m "更新文章"
+git push
+```
+
+## 后台管理
+- URL: `docs/admin/admin.html`
+- 默认密码: `admin123`
+- 可在设置中修改密码
+- 支持新建/编辑/删除/导入文章
